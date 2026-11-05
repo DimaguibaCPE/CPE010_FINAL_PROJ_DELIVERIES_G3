@@ -1,9 +1,11 @@
 #include "function.h"
 #include "delivery.h"
+#include "deliverytrack.h"
 #include <iostream>
 #include <limits>
 #include <cstdlib>
-
+#include <fstream>
+#include <sstream>
 
 // Login settings
 const std::string DISPATCHER_USERNAME = "dispatcher";
@@ -98,6 +100,7 @@ bool login() {
 
 // MAIN APPLICATION NAVIGATION
 void runApplication() {
+    loadRidersFromFile();
     bool running = true;
 
     while (running) {
@@ -162,7 +165,11 @@ struct Rider {
     std::string name;
     std::string contact;
     bool available;
+    bool onDelivery;
     int workload;
+
+    std::string item;
+    std::string address;
 };
 
 // RIDER RECORD STORAGE
@@ -170,6 +177,110 @@ struct Rider {
 Rider riders[MAX_RIDERS];
 int riderCount = 0;
 int nextRiderID = 1;
+
+void saveRidersToFile() {
+
+    std::ofstream file("riders.txt");
+
+    if (!file.is_open()) {
+        std::cout << "Error saving rider records.\n";
+        return;
+    }
+
+    for (int i = 0; i < riderCount; i++) {
+
+        file << "ID: #" << riders[i].id
+             << ", Name: " << riders[i].name
+             << ", Contact: " << riders[i].contact
+             << ", Workload: " << riders[i].workload
+             << ", Status: ";
+
+        if (riders[i].onDelivery) {
+            file << "On-Delivery";
+        }
+        else if (riders[i].available) {
+            file << "Ready";
+        }
+        else {
+            file << "Unavailable";
+        }
+
+        file << ", Item: " << riders[i].item<< ", Address: " << riders[i].address << "\n";
+    }
+
+
+    
+    file.close();
+}
+
+
+void loadRidersFromFile() {
+
+    std::ifstream file("riders.txt");
+
+    if (!file.is_open()) {
+        return;
+    }
+
+    riderCount = 0;
+    nextRiderID = 1;
+
+    std::string line;
+
+    while (std::getline(file, line) && riderCount < MAX_RIDERS) {
+
+        std::stringstream ss(line);
+
+        std::string idPart;
+        std::string namePart;
+        std::string contactPart;
+        std::string workloadPart;
+        std::string statusPart;
+        std::string itemPart;
+        std::string addressPart;
+
+        std::getline(ss, idPart, ',');
+        std::getline(ss, namePart, ',');
+        std::getline(ss, contactPart, ',');
+        std::getline(ss, workloadPart, ',');
+        std::getline(ss, statusPart, ',');
+        std::getline(ss, itemPart, ',');
+        std::getline(ss, addressPart);
+
+        try {
+            riders[riderCount].id =
+                std::stoi(idPart.substr(idPart.find('#') + 1));
+
+            riders[riderCount].name =
+                namePart.substr(namePart.find(": ") + 2);
+
+            riders[riderCount].contact =
+                contactPart.substr(contactPart.find(": ") + 2);
+
+            riders[riderCount].workload =
+                std::stoi(workloadPart.substr(workloadPart.find(": ") + 2));
+
+            std::string status = statusPart.substr(statusPart.find(": ") + 2);
+
+            riders[riderCount].available = (status == "Ready");
+            riders[riderCount].onDelivery = (status == "On-Delivery");
+            riders[riderCount].item = itemPart.substr(itemPart.find(": ") + 2);
+            riders[riderCount].address = addressPart.substr(addressPart.find(": ") + 2);
+
+            if (riders[riderCount].id >= nextRiderID) {
+                nextRiderID = riders[riderCount].id + 1;
+            }
+
+            riderCount++;
+        }
+        catch (...) {
+            continue;
+        }
+    }
+
+    file.close();
+}
+
 
 // MAIN MENU
 void showMainMenu() {
@@ -336,7 +447,10 @@ void addRider() {
     riders[riderCount].name = name;
     riders[riderCount].contact = contact;
     riders[riderCount].available = true;
+    riders[riderCount].onDelivery = false;
     riders[riderCount].workload = 0;
+    riders[riderCount].item = "None";
+    riders[riderCount].address = "None";
 
     std::cout << "\nRider successfully added!\n";
 
@@ -354,6 +468,8 @@ void addRider() {
     // UPDATE COUNTERS
     riderCount++;
     nextRiderID++;
+
+    saveRidersToFile();
 
     pauseScreen();
 }
@@ -500,6 +616,8 @@ void updateRider() {
         return;
     }
 
+    saveRidersToFile();
+
     pauseScreen();
 }
 
@@ -584,6 +702,8 @@ void manageRiderAvailability() {
         return;
     }
 
+    saveRidersToFile();
+
     pauseScreen();
 }
 
@@ -638,33 +758,417 @@ void showRiderManagementMenu() {
     std::cout << "Enter your selection: ";
 }
 
-// DELIVERY ASSIGNMENT
-void showDeliveryAssignmentScreen() {
-    std::cout << "DELIVERY ASSIGNMENT\n";
+
+int getPriorityValue(const std::string& priority) {
+    if (priority == "High") {
+        return 3;
+    }
+
+    if (priority == "Medium") {
+        return 2;
+    }
+
+    return 1;
+}
+
+void viewPendingDeliveries() {
+
+    const std::vector<Delivery>& deliveries =
+        getDeliveryManager().getAllDeliveries();
+
+    std::cout << "\nPENDING DELIVERIES\n";
     line();
 
-    std::cout << "Planned actions:\n";
-    std::cout << "- View pending deliveries\n";
-    std::cout << "- View available riders and their workloads\n";
-    std::cout << "- Assign deliveries based on priority and workload\n";
+    bool found = false;
 
-    std::cout << "\nThis feature is not implemented yet.\n";
-    pauseScreen();
+    for (int i = 0; i < deliveries.size(); i++) {
+
+        if (deliveries[i].status == "Pending") {
+
+            found = true;
+
+            std::cout << "Delivery ID: "
+                      << deliveries[i].deliveryID << "\n";
+
+            std::cout << "Customer: "
+                      << deliveries[i].customerName << "\n";
+
+            std::cout << "Destination: "
+                      << deliveries[i].destination << "\n";
+
+            std::cout << "Priority: "
+                      << deliveries[i].priority << "\n";
+
+            line();
+        }
+    }
+
+    if (!found) {
+        std::cout << "No pending deliveries found.\n";
+    }
+}
+
+void viewAvailableRiders() {
+
+    std::cout << "\nAVAILABLE RIDERS\n";
+    line();
+
+    bool found = false;
+
+    for (int i = 0; i < riderCount; i++) {
+
+        if (riders[i].available && !riders[i].onDelivery) {
+
+            found = true;
+
+            std::cout << "Rider ID: "
+                      << riders[i].id << "\n";
+
+            std::cout << "Name: "
+                      << riders[i].name << "\n";
+
+            std::cout << "Workload: "
+                      << riders[i].workload << "\n";
+
+            line();
+        }
+    }
+
+    if (!found) {
+        std::cout << "No available riders.\n";
+    }
+}
+
+int findAvailableRiderWithLowestWorkload() {
+
+    int selected = -1;
+
+    for (int i = 0; i < riderCount; i++) {
+
+        if (riders[i].available && !riders[i].onDelivery) {
+
+            if (selected == -1 ||
+                riders[i].workload < riders[selected].workload) {
+
+                selected = i;
+            }
+        }
+    }
+
+    return selected;
+}
+
+
+void assignDeliveryManually() {
+
+    const std::vector<Delivery>& deliveries =
+        getDeliveryManager().getAllDeliveries();
+
+    std::vector<int> pendingIndexes;
+
+    std::cout << "\nSELECT A PENDING DELIVERY\n";
+    line();
+
+    for (int i = 0; i < deliveries.size(); i++) {
+
+        if (deliveries[i].status == "Pending") {
+
+            pendingIndexes.push_back(i);
+
+            std::cout << pendingIndexes.size() << ". "
+                      << deliveries[i].deliveryID << " | "
+                      << deliveries[i].customerName << " | "
+                      << deliveries[i].destination << " | Priority: "
+                      << deliveries[i].priority << "\n";
+        }
+    }
+
+    if (pendingIndexes.empty()) {
+        std::cout << "No pending deliveries to assign.\n";
+        return;
+    }
+
+    std::cout << "0. Cancel\n";
+    line();
+    std::cout << "Choose delivery: ";
+
+    int deliveryChoice = readMenuChoice(
+        0, pendingIndexes.size()
+    );
+
+    if (deliveryChoice == 0) return;
+
+    std::vector<int> availableIndexes;
+
+    for (int i = 0; i < riderCount; i++) {
+
+        if (riders[i].available && !riders[i].onDelivery) {
+            availableIndexes.push_back(i);
+        }
+    }
+
+    if (availableIndexes.empty()) {
+        std::cout << "No available riders.\n";
+        return;
+    }
+
+    std::cout << "\nSELECT A RIDER\n";
+    line();
+
+    for (int i = 0; i < availableIndexes.size(); i++) {
+
+        int index = availableIndexes[i];
+
+        std::cout << i + 1 << ". "
+                  << "ID: " << riders[index].id
+                  << " | " << riders[index].name
+                  << " | Workload: " << riders[index].workload
+                  << "\n";
+    }
+
+    std::cout << "0. Cancel\n";
+    line();
+    std::cout << "Choose rider: ";
+
+    int riderChoice = readMenuChoice(
+        0, availableIndexes.size()
+    );
+
+    if (riderChoice == 0) return;
+
+    int deliveryIndex = pendingIndexes[deliveryChoice - 1];
+    int riderIndex = availableIndexes[riderChoice - 1];
+
+    if (getDeliveryManager().assignDelivery(
+        deliveries[deliveryIndex].deliveryID,
+        riders[riderIndex].name
+    )) {
+
+        riders[riderIndex].available = false;
+        riders[riderIndex].onDelivery = true;
+        riders[riderIndex].workload++;
+
+        // Get parcel and destination from the selected delivery
+        riders[riderIndex].item = deliveries[deliveryIndex].parcelDescription;
+        riders[riderIndex].address = deliveries[deliveryIndex].destination;
+
+        saveRidersToFile();
+
+        std::cout << "\nDelivery successfully assigned!\n";
+
+        std::cout << "Delivery ID: "
+                << deliveries[deliveryIndex].deliveryID << "\n";
+
+        std::cout << "Assigned Rider: "
+                << riders[riderIndex].name << "\n";
+
+        std::cout << "Item: "
+                << riders[riderIndex].item << "\n";
+
+        std::cout << "Address: "
+                << riders[riderIndex].address << "\n";
+
+    } else {
+        std::cout << "Unable to assign delivery.\n";
+    }
+}
+
+void autoAssignDeliveries() {
+
+    std::cout << "\nAUTOMATIC DELIVERY ASSIGNMENT\n";
+    line();
+
+    int assignedCount = 0;
+
+    while (true) {
+
+        const std::vector<Delivery>& deliveries =
+            getDeliveryManager().getAllDeliveries();
+
+        int deliveryIndex = -1;
+
+        for (int i = 0; i < deliveries.size(); i++) {
+
+            if (deliveries[i].status == "Pending") {
+
+                if (deliveryIndex == -1 ||
+                    getPriorityValue(deliveries[i].priority) >
+                    getPriorityValue(deliveries[deliveryIndex].priority)) {
+
+                    deliveryIndex = i;
+                }
+            }
+        }
+
+        if (deliveryIndex == -1) {
+            break;
+        }
+
+        int riderIndex = findAvailableRiderWithLowestWorkload();
+
+        if (riderIndex == -1) {
+            break;
+        }
+
+        if (getDeliveryManager().assignDelivery(
+            deliveries[deliveryIndex].deliveryID,
+            riders[riderIndex].name
+        )) {
+
+            riders[riderIndex].available = false;
+            riders[riderIndex].onDelivery = true;
+            riders[riderIndex].workload++;
+            
+            riders[riderIndex].address = deliveries[deliveryIndex].destination;
+            riders[riderIndex].item = deliveries[deliveryIndex].parcelDescription;
+
+            assignedCount++;
+
+            std::cout << "Assigned "
+                      << deliveries[deliveryIndex].deliveryID
+                      << " to "
+                      << riders[riderIndex].name << "\n";
+        }
+    }
+
+    if (assignedCount > 0) {
+    saveRidersToFile();
+}
+
+    std::cout << "\nTotal deliveries assigned: "
+              << assignedCount << "\n";
+}
+
+
+
+void showDeliveryAssignmentScreen() {
+
+    bool inMenu = true;
+
+    while (inMenu) {
+
+        clearScreen();
+
+        std::cout << "DELIVERY ASSIGNMENT\n";
+        line();
+
+        std::cout << "(1) View Pending Deliveries\n";
+        std::cout << "(2) View Available Riders\n";
+        std::cout << "(3) Manually Assign Delivery\n";
+        std::cout << "(4) Automatically Assign Deliveries\n";
+        std::cout << "(0) Return to Main Menu\n";
+
+        line();
+        std::cout << "Enter your selection: ";
+
+        int choice = readMenuChoice(0, 4);
+
+        switch (choice) {
+
+            case 1:
+                clearScreen();
+                viewPendingDeliveries();
+                pauseScreen();
+                break;
+
+            case 2:
+                clearScreen();
+                viewAvailableRiders();
+                pauseScreen();
+                break;
+
+            case 3:
+                clearScreen();
+                assignDeliveryManually();
+                pauseScreen();
+                break;
+
+            case 4:
+                clearScreen();
+                autoAssignDeliveries();
+                pauseScreen();
+                break;
+
+            case 0:
+                inMenu = false;
+                break;
+        }
+    }
 }
 
 // DELIVERY TRACKING
+
 void showDeliveryTrackingScreen() {
-    std::cout << "DELIVERY TRACKING\n";
-    line();
 
-    std::cout << "Planned actions:\n";
-    std::cout << "- View delivery statuses\n";
-    std::cout << "- Search for a delivery by ID\n";
-    std::cout << "- Update a delivery status\n";
+    bool inMenu = true;
 
-    std::cout << "\nThis feature is not implemented yet.\n";
-    pauseScreen();
+    const std::string fileName = "riders.txt";
+
+    while (inMenu) {
+
+        clearScreen();
+        printMenu();
+
+        int select = readMenuChoice(0, 5);
+        std::string id;
+
+        switch (select) {
+
+            case 0:
+                inMenu = false;
+                break;
+
+            case 1:
+                std::cout << "\nAll Riders:\n";
+                viewAll(fileName);
+                pauseScreen();
+                break;
+
+            case 2:
+                std::cout << "\nRiders on Standby:\n";
+                viewReady(fileName);
+                pauseScreen();
+                break;
+
+            case 3:
+                std::cout << "\nRiders on Delivery:\n";
+                viewOnDelivery(fileName);
+                pauseScreen();
+                break;
+
+            case 4:
+                std::cout << "\nComplete a Delivery:\n";
+                std::cout << "Enter ID number: ";
+                std::getline(std::cin, id);
+
+                deliverComplete(fileName, id);
+
+                loadRidersFromFile();
+                pauseScreen();
+                break;
+
+            case 5:
+                std::cout << "\nStart a Delivery:\n";
+                std::cout << "Enter ID number: ";
+                std::getline(std::cin, id);
+
+                std::string address, item;
+
+                std::cout << "Enter Item: ";
+                getline(std::cin, item);
+
+                std::cout << "Enter Address: ";
+                getline(std::cin, address);
+
+                deliverStart(fileName, id, address, item);
+
+                loadRidersFromFile();
+                pauseScreen();
+                break;
+        }
+    }
 }
+
 
 // ROUTE OPTIMIZATION
 void showRouteOptimizationScreen();
