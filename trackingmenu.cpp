@@ -3,11 +3,11 @@
 #include "deliverytrack.h"
 
 
-const std::string fileName = "test.txt"; // can be changed
+const std::string fileName = "status.txt"; // can be changed
 
 int main(){
     int select = 0;
-    std::string id;
+    std::string id, address, item;
 
     while(select != 6){
     printMenu();
@@ -32,9 +32,10 @@ int main(){
             break;
         
         case 4:
-        std::cout<<"Complete a Delivery:\n\n";
-        std::cout<<"Enter ID number (****/no need for #): ";
-        std::cin>>id;
+            std::cout<<"Complete a Delivery:\n\n";
+            std::cout<<"Enter ID number (****/no need for #): ";
+            std::cin>>id;
+
             deliverComplete(fileName, id);
             break;
         
@@ -42,7 +43,14 @@ int main(){
             std::cout<<"Start a Delivery:\n\n";
             std::cout<<"Enter ID number (****/no need for #): ";
             std::cin>>id;
-            deliverStart(fileName, id);
+
+            std::cout<<"Enter Address: ";
+            std::cin.ignore();
+            std::getline(std::cin, address);
+            
+            std::cout<<"Enter Item Name: ";
+            std::getline(std::cin, item);
+            deliverStart(fileName, id, address, item);
             break;
         
         case 6:
