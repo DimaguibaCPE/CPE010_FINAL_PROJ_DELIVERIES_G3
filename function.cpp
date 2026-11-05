@@ -1,7 +1,9 @@
 #include "function.h"
+#include "delivery.h"
 #include <iostream>
 #include <limits>
 #include <cstdlib>
+
 
 // Login settings
 const std::string DISPATCHER_USERNAME = "dispatcher";
@@ -163,6 +165,12 @@ struct Rider {
     int workload;
 };
 
+// RIDER RECORD STORAGE
+
+Rider riders[MAX_RIDERS];
+int riderCount = 0;
+int nextRiderID = 1;
+
 // MAIN MENU
 void showMainMenu() {
     std::cout << "ROUTE OPTIMIZER FOR DELIVERY DRIVERS\n";
@@ -218,16 +226,9 @@ void openFeature(int choice) {
 
 // ADD DELIVERY RECORD
 void showAddDeliveryScreen() {
-    std::cout << "ADD DELIVERY RECORD\n";
-    line();
 
-    std::cout << "Planned actions:\n";
-    std::cout << "- Enter customer name and contact number\n";
-    std::cout << "- Enter parcel details and destination\n";
-    std::cout << "- Select delivery priority\n";
-    std::cout << "- Generate a delivery ID and confirm the record\n";
+    getDeliveryManager().addDeliveryRecord();
 
-    std::cout << "\nThis feature is not implemented yet.\n";
     pauseScreen();
 }
 
@@ -244,9 +245,7 @@ void showManageDeliveriesScreen() {
         switch (choice) {
             case 1:
                 clearScreen();
-                std::cout << "VIEW DELIVERY RECORDS\n";
-                line();
-                std::cout << "Viewing records will be implemented later.\n";
+                getDeliveryManager().viewDeliveryRecords();
                 pauseScreen();
                 break;
 
