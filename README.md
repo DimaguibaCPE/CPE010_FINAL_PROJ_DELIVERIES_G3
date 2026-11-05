@@ -8,10 +8,10 @@ TEST LOGIN CREDENTIALS:
 
 
 HOW TO COMPILE:
-Run: g++ -std=c++11 main.cpp function.cpp -o RouteOptimizer
+- Run: g++ -std=c++11 main.cpp function.cpp -o RouteOptimizer
 
 HOW TO RUN:
-Run: ./RouteOptimizer
+- Run: ./RouteOptimizer
 
 
 PROGRESS 1: LOGIN SYSTEM AND INITIAL MENU LAYOUT - ASAJAR
