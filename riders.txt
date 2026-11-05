@@ -1,0 +1,3 @@
+ID: #1, Name: Ren Amamiya, Contact: 09tutunogtunog, Workload: 1, Status: Ready, Item: None, Address: None
+ID: #2, Name: Makoto Yuki, Contact: 092929292, Workload: 0, Status: Ready, Item: None, Address: None
+ID: #3, Name: Akihiko Sanada, Contact: 0290202, Workload: 0, Status: Ready, Item: None, Address: None
