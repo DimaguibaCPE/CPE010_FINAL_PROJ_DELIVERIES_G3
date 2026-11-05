@@ -25,4 +25,9 @@ PROGRESS 1: LOGIN SYSTEM AND INITIAL MENU LAYOUT - ASAJAR
 - Log out and exit flow.
 
 
-PROGRESS 2: 
+PROGRESS 2: ADDED RIDER MANAGEMENT
+- User can add riders
+- User can view rider by id
+- User can update rider information
+- Can update availability
+- WORKLOAD NOT UPDATED YET
