@@ -2,6 +2,7 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include "function.h"
 
 #ifndef DELIVERYTRACK_H
 #define DELIVERYTRACK_H
@@ -14,6 +15,7 @@ View functions:
 - View all riders (Regardless of status)
 -View all Riders available(Status: Ready)
 -View all Riders on delivery(Status: On Delivery)
+- Check specific rider status by ID
 
 
 Update functions:
@@ -30,19 +32,22 @@ NOTE: When calling Status or ID no need to add "#" or "Status:". Type as is ex.(
 
 void printMenu(){
 
-    std::cout<<"<==========DELIVERY TRACKER==========>\n\n";
-
-    std::cout<<"1. Rider Directory\n\n";
+    std::cout<<"DELIVERY TRACKER\n";
+    line();
+    std::cout<<"(1) Rider Directory\n";
     
-    std::cout<<"2.Riders on Standby\n\n";
+    std::cout<<"(2) Riders on Standby\n";
     
-    std::cout<<"3. Riders on Delivery\n\n";
+    std::cout<<"(3) Riders on Delivery\n";
     
-    std::cout<<"4. Complete a Delivery\n\n";
+    std::cout<<"(4) Complete a Delivery\n";
 
-    std::cout<<"5. Start a Delivery\n\n";
+    std::cout<<"(5) Start a Delivery\n";
 
-    std::cout<<"6. Exit\n\n";
+    std::cout<<"(0) Return to Main Menu\n";
+
+    line();
+    std::cout << "Enter your selection: ";
 
     return;
 }
@@ -61,8 +66,16 @@ void viewAll(std::string filelappelle){ //l'apple("to call") >:D
 
     //read each line
     std::string toView;
+    bool found = false;
     while(std::getline(file, toView)){
-        std::cout<<toView<<std::endl;
+        if (!toView.empty()) {
+            std::cout << toView << std::endl;
+            found = true;
+        }
+    }
+
+    if (!found) {
+        std::cout << "No drivers found." << std::endl;
     }
     file.close();
 }
@@ -80,12 +93,19 @@ void viewReady(std::string filelappelle){
     std::string readyLine;
     std::string readTill = ", Status:";
     std::string status = "Status: Ready";
+
+    bool found = false;
     
     while(std::getline(file, readyLine)){
         if(readyLine.find(status) != std::string::npos){ //
-            std::cout<<readyLine.substr(0, readyLine.find(readTill))<<std::endl;
+            std::cout << readyLine.substr(0, readyLine.find(readTill)) << std::endl;
+            found = true;
             }
         }       
+
+    if (!found) {
+        std::cout << "No drivers on standby." << std::endl;
+    }
 
     file.close();
 }
@@ -104,13 +124,26 @@ void viewOnDelivery(std::string filelappelle){
     std::string readFrom = "Item: ";
     std::string status = "Status: On-Delivery"; //reads only till ID
 
-    while(std::getline(file, onDel)){    
-        if(onDel.find(status) != std::string::npos){ //
-            std::cout<<onDel.substr(0, onDel.find(readTill))<<" ";
-            std::cout<<onDel.substr(onDel.find(readFrom), std::string::npos)<<std::endl;
-            }
-        }           
+    bool found = false;
 
+    while(std::getline(file, onDel)){    
+        if (onDel.find(status) != std::string::npos) {
+
+            std::cout << onDel.substr(
+                0, onDel.find(readTill)
+            ) << " ";
+
+            std::cout << onDel.substr(
+                onDel.find(readFrom), std::string::npos
+            ) << std::endl;
+
+            found = true;
+            }
+        }   
+                
+    if (!found) {
+        std::cout << "No drivers currently on delivery." << std::endl;
+    }
 
     file.close();
 }
