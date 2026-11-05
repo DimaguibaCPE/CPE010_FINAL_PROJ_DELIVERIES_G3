@@ -667,15 +667,4 @@ void showDeliveryTrackingScreen() {
 }
 
 // ROUTE OPTIMIZATION
-void showRouteOptimizationScreen() {
-    std::cout << "ROUTE OPTIMIZATION\n";
-    line();
-
-    std::cout << "Planned actions:\n";
-    std::cout << "- View available locations and roads\n";
-    std::cout << "- Find the shortest route to a destination\n";
-    std::cout << "- Optimize the order of multiple delivery stops\n";
-
-    std::cout << "\nThis feature is not implemented yet.\n";
-    pauseScreen();
-}
+void showRouteOptimizationScreen();
