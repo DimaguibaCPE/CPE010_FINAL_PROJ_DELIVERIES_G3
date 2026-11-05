@@ -31,5 +31,13 @@ void showRouteOptimizationScreen();
 // Feature submenus
 void showManageDeliveriesMenu();
 void showRiderManagementMenu();
+void saveRidersToFile();
+void loadRidersFromFile();
+void viewPendingDeliveries();
+void viewAvailableRiders();
+void assignDeliveryManually();
+void autoAssignDeliveries();
+int findAvailableRiderWithLowestWorkload();
+int getPriorityValue(const std::string& priority);
 
 #endif
