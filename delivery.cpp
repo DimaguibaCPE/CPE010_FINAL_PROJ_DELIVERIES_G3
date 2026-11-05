@@ -258,3 +258,25 @@ bool DeliveryManager::popNextPendingDeliveryID(
 
     return true;
 }
+
+bool DeliveryManager::assignDelivery(
+    const std::string& deliveryID,
+    const std::string& riderName
+) {
+    for (int i = 0; i < deliveries.size(); i++) {
+
+        if (deliveries[i].deliveryID == deliveryID) {
+
+            if (deliveries[i].status != "Pending") {
+                return false;
+            }
+
+            deliveries[i].assignedRider = riderName;
+            deliveries[i].status = "Assigned";
+
+            return true;
+        }
+    }
+
+    return false;
+}
