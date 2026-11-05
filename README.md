@@ -3,8 +3,8 @@ ROUTE OPTIMIZER FOR DELIVERY DRIVERS:
 
 TEST LOGIN CREDENTIALS:
 
-Username: dispatcher
-Password: 12345
+- Username: dispatcher
+- Password: 12345
 
 
 HOW TO COMPILE:
