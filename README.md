@@ -30,4 +30,4 @@ PROGRESS 2: ADDED RIDER MANAGEMENT
 - User can view rider by id
 - User can update rider information
 - Can update availability
-- WORKLOAD NOT UPDATED YET
+- (WORKLOAD NOT UPDATED YET)
