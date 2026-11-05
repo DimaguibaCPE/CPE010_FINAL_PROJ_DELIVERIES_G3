@@ -151,6 +151,18 @@ void runApplication() {
         << "Thank you for using Route Optimizer for Delivery Drivers!\n";
 }
 
+// RIDER RECORDS
+
+const int MAX_RIDERS = 100;
+
+struct Rider {
+    int id;
+    std::string name;
+    std::string contact;
+    bool available;
+    int workload;
+};
+
 // MAIN MENU
 void showMainMenu() {
     std::cout << "ROUTE OPTIMIZER FOR DELIVERY DRIVERS\n";
@@ -283,47 +295,327 @@ void showManageDeliveriesMenu() {
     std::cout << "Enter your selection: ";
 }
 
+// ADD RIDER
+void addRider() {
+
+    clearScreen();
+
+    std::cout << "ADD RIDER\n";
+    line();
+
+    if (riderCount >= MAX_RIDERS) {
+        std::cout << "Rider limit has been reached.\n";
+        pauseScreen();
+        return;
+    }
+
+    std::string name;
+    std::string contact;
+
+    // GET RIDER NAME
+    std::cout << "Enter Rider Name: ";
+    std::getline(std::cin, name);
+
+    if (name.empty()) {
+        std::cout << "\nName cannot be empty.\n";
+        pauseScreen();
+        return;
+    }
+
+    // GET CONTACT NUMBER
+    std::cout << "Enter Contact Number: ";
+    std::getline(std::cin, contact);
+
+    if (contact.empty()) {
+        std::cout << "\nContact number cannot be empty.\n";
+        pauseScreen();
+        return;
+    }
+
+    // STORE RIDER INFORMATION
+    riders[riderCount].id = nextRiderID;
+    riders[riderCount].name = name;
+    riders[riderCount].contact = contact;
+    riders[riderCount].available = true;
+    riders[riderCount].workload = 0;
+
+    std::cout << "\nRider successfully added!\n";
+
+    std::cout << "Rider ID: "
+              << nextRiderID << "\n";
+
+    std::cout << "Name: "
+              << name << "\n";
+
+    std::cout << "Contact: "
+              << contact << "\n";
+
+    std::cout << "Availability: Available\n";
+
+    // UPDATE COUNTERS
+    riderCount++;
+    nextRiderID++;
+
+    pauseScreen();
+}
+
+// VIEW RIDERS
+void viewRiders() {
+
+    clearScreen();
+
+    std::cout << "VIEW RIDERS\n";
+    line();
+
+    if (riderCount == 0) {
+        std::cout << "No rider records found.\n";
+        pauseScreen();
+        return;
+    }
+
+    for (int i = 0; i < riderCount; i++) {
+
+        std::cout << "\nRider ID: "
+                  << riders[i].id << "\n";
+
+        std::cout << "Name: "
+                  << riders[i].name << "\n";
+
+        std::cout << "Contact: "
+                  << riders[i].contact << "\n";
+
+        std::cout << "Availability: ";
+
+        if (riders[i].available == true) {
+            std::cout << "Available\n";
+        }
+        else {
+            std::cout << "Unavailable\n";
+        }
+
+        std::cout << "Workload: "
+                  << riders[i].workload << "\n";
+
+        line();
+    }
+
+    std::cout << "\nTotal Riders: "
+              << riderCount << "\n";
+
+    pauseScreen();
+}
+
+// UPDATE RIDER INFORMATION
+void updateRider() {
+
+    clearScreen();
+
+    int id;
+    int found = -1;
+
+    std::cout << "UPDATE RIDER INFORMATION\n";
+    line();
+
+    if (riderCount == 0) {
+        std::cout << "No rider records found.\n";
+        pauseScreen();
+        return;
+    }
+
+    std::cout << "Enter Rider ID: ";
+    std::cin >> id;
+
+    std::cin.ignore(
+        std::numeric_limits<std::streamsize>::max(), '\n'
+    );
+
+    // SEARCH FOR RIDER
+    for (int i = 0; i < riderCount; i++) {
+
+        if (riders[i].id == id) {
+            found = i;
+            break;
+        }
+    }
+
+    if (found == -1) {
+        std::cout << "\nRider not found.\n";
+        pauseScreen();
+        return;
+    }
+
+    int choice;
+
+    std::cout << "\nRider Found!\n";
+
+    std::cout << "Name: "
+              << riders[found].name << "\n";
+
+    std::cout << "Contact: "
+              << riders[found].contact << "\n";
+
+    line();
+
+    std::cout << "(1) Update Name\n";
+    std::cout << "(2) Update Contact Number\n";
+    std::cout << "(0) Cancel\n";
+
+    line();
+
+    std::cout << "Enter your selection: ";
+    choice = readMenuChoice(0, 2);
+
+    if (choice == 1) {
+
+        std::string newName;
+
+        std::cout << "Enter New Name: ";
+        std::getline(std::cin, newName);
+
+        if (newName.empty()) {
+            std::cout << "\nName cannot be empty.\n";
+        }
+        else {
+            riders[found].name = newName;
+            std::cout << "\nName successfully updated!\n";
+        }
+    }
+
+    else if (choice == 2) {
+
+        std::string newContact;
+
+        std::cout << "Enter New Contact Number: ";
+        std::getline(std::cin, newContact);
+
+        if (newContact.empty()) {
+            std::cout << "\nContact number cannot be empty.\n";
+        }
+        else {
+            riders[found].contact = newContact;
+            std::cout << "\nContact number successfully updated!\n";
+        }
+    }
+
+    else {
+        return;
+    }
+
+    pauseScreen();
+}
+
+// MANAGE RIDER AVAILABILITY
+void manageRiderAvailability() {
+
+    clearScreen();
+
+    int id;
+    int found = -1;
+
+    std::cout << "MANAGE RIDER AVAILABILITY\n";
+    line();
+
+    if (riderCount == 0) {
+        std::cout << "No rider records found.\n";
+        pauseScreen();
+        return;
+    }
+
+    std::cout << "Enter Rider ID: ";
+    std::cin >> id;
+
+    std::cin.ignore(
+        std::numeric_limits<std::streamsize>::max(), '\n'
+    );
+
+    // SEARCH FOR RIDER
+    for (int i = 0; i < riderCount; i++) {
+
+        if (riders[i].id == id) {
+            found = i;
+            break;
+        }
+    }
+
+    if (found == -1) {
+        std::cout << "\nRider not found.\n";
+        pauseScreen();
+        return;
+    }
+
+    std::cout << "\nRider: "
+              << riders[found].name << "\n";
+
+    std::cout << "Current Availability: ";
+
+    if (riders[found].available == true) {
+        std::cout << "Available\n";
+    }
+    else {
+        std::cout << "Unavailable\n";
+    }
+
+    line();
+
+    std::cout << "(1) Set as Available\n";
+    std::cout << "(2) Set as Unavailable\n";
+    std::cout << "(0) Cancel\n";
+
+    line();
+
+    std::cout << "Enter your selection: ";
+
+    int choice = readMenuChoice(0, 2);
+
+    if (choice == 1) {
+
+        riders[found].available = true;
+
+        std::cout << "\nRider is now Available.\n";
+    }
+
+    else if (choice == 2) {
+
+        riders[found].available = false;
+
+        std::cout << "\nRider is now Unavailable.\n";
+    }
+
+    else {
+        return;
+    }
+
+    pauseScreen();
+}
+
 // RIDER MANAGEMENT
 void showRiderManagementScreen() {
+
     bool inMenu = true;
 
     while (inMenu) {
+
         clearScreen();
         showRiderManagementMenu();
 
         int choice = readMenuChoice(0, 4);
 
         switch (choice) {
+
             case 1:
-                clearScreen();
-                std::cout << "ADD RIDER\n";
-                line();
-                std::cout << "Adding riders will be implemented later.\n";
-                pauseScreen();
+                addRider();
                 break;
 
             case 2:
-                clearScreen();
-                std::cout << "VIEW RIDERS\n";
-                line();
-                std::cout << "Viewing riders will be implemented later.\n";
-                pauseScreen();
+                viewRiders();
                 break;
 
             case 3:
-                clearScreen();
-                std::cout << "UPDATE RIDER INFORMATION\n";
-                line();
-                std::cout << "Updating riders will be implemented later.\n";
-                pauseScreen();
+                updateRider();
                 break;
 
             case 4:
-                clearScreen();
-                std::cout << "MANAGE RIDER AVAILABILITY\n";
-                line();
-                std::cout << "Managing availability will be implemented later.\n";
-                pauseScreen();
+                manageRiderAvailability();
                 break;
 
             case 0:
