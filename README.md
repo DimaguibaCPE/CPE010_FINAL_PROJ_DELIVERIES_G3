@@ -48,7 +48,14 @@ PROGRESS 4: DELIVERY INFORMATION REGISTRATION – GRESOLA
 - Implemented initial delivery status tracking, with newly registered deliveries marked as pending.
 
 
-PROGRESS 5: DELIVERY ASSIGNMENT – GARBOSA
+PROGRESS 5: ROUTE OPTIMIZATION – GODINO
+
+- Implemented a graph-based system to represent road connections between predefined locations in Quezon City.
+- Applied Dijkstra's algorithm to calculate the shortest paths between delivery locations.
+- Added a nearest-stop approach to recommend an efficient order for multiple delivery destinations.
+- Integrated delivery records to identify pending deliveries and their corresponding destinations.
+
+PROGRESS 6: DELIVERY ASSIGNMENT – GARBOSA
 
 - Implemented functionality to view pending deliveries and available riders.
 - Allows users to manually assign pending deliveries to available riders.
@@ -56,12 +63,3 @@ PROGRESS 5: DELIVERY ASSIGNMENT – GARBOSA
 - Prioritizes high-priority deliveries during automatic assignment.
 - Integrates rider workload tracking to help distribute deliveries among available riders.
 - Workload adjustment upon delivery completion still requires further improvement.
-
-
-PROGRESS 6: ROUTE OPTIMIZATION – GODINO
-
-- Implemented a graph-based system to represent road connections between predefined locations in Quezon City.
-- Applied Dijkstra's algorithm to calculate the shortest paths between delivery locations.
-- Added a nearest-stop approach to recommend an efficient order for multiple delivery destinations.
-- Integrated delivery records to identify pending deliveries and their corresponding destinations.
-- Calculates and displays the recommended delivery sequence, individual travel distances, and total route distance.
