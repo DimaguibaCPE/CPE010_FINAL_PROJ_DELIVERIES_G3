@@ -3,8 +3,8 @@
 #include <fstream>
 #include <vector>
 
-#ifndef FUNC_H
-#define FUNC_H
+#ifndef DELIVERYTRACK_H
+#define DELIVERYTRACK_H
 
 /*Algo/How it works:
 
@@ -14,7 +14,6 @@ View functions:
 - View all riders (Regardless of status)
 -View all Riders available(Status: Ready)
 -View all Riders on delivery(Status: On Delivery)
-- Check specific rider status by ID
 
 
 Update functions:
@@ -102,11 +101,13 @@ void viewOnDelivery(std::string filelappelle){
     //read only those with "On-Delivery" status:
     std::string onDel;
     std::string readTill = ", Status:";
+    std::string readFrom = "Item: ";
     std::string status = "Status: On-Delivery"; //reads only till ID
 
-    while(std::getline(file, onDel)){
+    while(std::getline(file, onDel)){    
         if(onDel.find(status) != std::string::npos){ //
-            std::cout<<onDel.substr(0, onDel.find(readTill))<<std::endl;
+            std::cout<<onDel.substr(0, onDel.find(readTill))<<" ";
+            std::cout<<onDel.substr(onDel.find(readFrom), std::string::npos)<<std::endl;
             }
         }           
 
@@ -118,7 +119,8 @@ void viewOnDelivery(std::string filelappelle){
 
 //=====================UPDATE FUNCTIONS=========================
 
-void updateStat(std::string filelappelle, std::string id, std::string stat){
+//update helper function
+void updateStats(std::string filelappelle, std::string id, std::string stat, std::string address, std::string item){
     std::ifstream reader(filelappelle);
 
     if(!reader.is_open()){
@@ -134,11 +136,20 @@ void updateStat(std::string filelappelle, std::string id, std::string stat){
     while(std::getline(reader, holdLine)){
         //ID search
         if(holdLine.find(search) != std::string::npos){
-            std::size_t pos = holdLine.find("Status:");
-            
-            if(pos != std::string::npos){
-                holdLine.replace(pos, std::string::npos, "Status: " + stat);
-                            //from beginning to end of line
+            std::size_t posStat = holdLine.find("Status:");
+            std::size_t posItem = holdLine.find("Item: ");
+            std::size_t posAdd = holdLine.find("Address: ");
+            //checks if there are missing variables
+            if(posStat != std::string::npos && posItem != std::string::npos && posAdd != std::string::npos){
+                holdLine.replace(posStat, posItem - posStat - 2, "Status: " + stat);
+                //resets the positions, because they keep doing weird things
+                posItem = holdLine.find("Item: ");
+                posAdd = holdLine.find("Address: ");
+
+                holdLine.replace(posItem, posAdd - posItem - 2, "Item: " + item);
+                posAdd = holdLine.find("Address: ");
+
+                holdLine.replace(posAdd, std::string::npos, "Address: " + address);
                 foundIt = true; // if found
             }
         }
@@ -171,7 +182,7 @@ void updateStat(std::string filelappelle, std::string id, std::string stat){
 
 }
 
-void deliverStart(std::string filelappelle, std::string id){
+void deliverStart(std::string filelappelle, std::string id, std::string address, std::string item){
 
     //checks if rider status is status : ready
     std::ifstream reader(filelappelle);
@@ -191,7 +202,7 @@ void deliverStart(std::string filelappelle, std::string id){
             foundIt = true;
             if(line.find("Status: Ready") != std::string::npos){
                 reader.close(); 
-                updateStat(filelappelle, id, "On-Delivery");
+                updateStats(filelappelle, id, "On-Delivery", address, item);
             }
             else{
                 std::cout<<"Rider already on delivery!"<<std::endl;
@@ -209,7 +220,7 @@ void deliverStart(std::string filelappelle, std::string id){
     }
 }
 
-void deliverComplete(std::string filelappelle, std::string id){
+void deliverComplete(std::string filelappelle, std::string id){ //no need for other parameters since set to "None"
 
     //checks if rider status is status : on-delivery
     std::ifstream reader(filelappelle);
@@ -229,16 +240,17 @@ void deliverComplete(std::string filelappelle, std::string id){
             foundIt = true;
             if(line.find("Status: On-Delivery") != std::string::npos){
                 reader.close(); 
-                updateStat(filelappelle, id, "Ready");
+                updateStats(filelappelle, id, "Ready", "None", "None");
+                return; 
             }
             else{
                 std::cout<<"Rider is not doing a delivery!"<<std::endl;
                 reader.close();
+                return; 
             }
-            return;   
+            
         }
     }   
-
      reader.close(); 
 
     if(!foundIt){
