@@ -196,6 +196,9 @@ std::cout << "============================================================\n";
     // stores the delivery record in the delivery list
     deliveries.push_back(newDelivery);
 
+    // automatically sorts delivery records using Quick Sort
+    quickSortDeliveryVector(deliveries);
+
     // adds the delivery ID to the pending delivery queue
     pendingDeliveries.push(newDelivery.deliveryID);
 
