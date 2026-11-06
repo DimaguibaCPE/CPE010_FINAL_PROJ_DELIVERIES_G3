@@ -41,8 +41,6 @@ void printMenu(){
     
     std::cout<<"(4) Complete a Delivery\n";
 
-    std::cout<<"(5) Start a Delivery\n";
-
     std::cout<<"(0) Return to Main Menu\n";
 
     line();
@@ -228,51 +226,6 @@ void updateStats(std::string filelappelle, std::string id, std::string stat, std
     // confirms that the rider information was updated
     std::cout << "Rider " << id << " status successfully updated.\n";
 
-}
-
-// updates a rider's status when a delivery starts
-void deliverStart(std::string filelappelle, std::string id, std::string address, std::string item){
-
-    // checks if the rider has Ready status
-    std::ifstream reader(filelappelle);
-
-    if(!reader.is_open()){
-        std::cout<<"Failed to open file!"<<std::endl;
-        return;
-    }
-    
-    std::string line;
-    std::string search = "ID: #" + id + ",";
-    bool foundIt = false;
-
-    while(std::getline(reader, line)){
-        
-        // searches for the rider ID
-        if(line.find(search) != std::string::npos){
-            foundIt = true;
-
-            // updates the rider if their status is Ready
-            if(line.find("Status: Ready") != std::string::npos){
-                reader.close(); 
-                updateStats(filelappelle, id, "On-Delivery", address, item);
-            }
-            else{
-                
-                // prevents starting another delivery for an unavailable rider
-                std::cout << "Error: Rider is already on delivery.\n";
-                reader.close();
-            }
-            return;   
-        }
-    }   
-
-    reader.close(); 
-
-    // displays an error if the rider ID is not found
-    if(!foundIt){
-        std::cout<<"Rider not found or Missing!"<<std::endl;
-        return;
-    }
 }
 
 // updates a rider's status when a delivery is completed
