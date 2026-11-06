@@ -946,8 +946,9 @@ void viewPendingDeliveries() {
     const std::vector<Delivery>& deliveries =
         getDeliveryManager().getAllDeliveries();
 
-    std::cout << "\nPENDING DELIVERIES\n";
-    line();
+    std::cout << "\n============================================================\n";
+    std::cout << "                     PENDING DELIVERIES\n";
+    std::cout << "============================================================\n";
 
     bool found = false;
 
@@ -989,8 +990,9 @@ void viewPendingDeliveries() {
 // displays riders who are available for assignment
 void viewAvailableRiders() {
 
-    std::cout << "\nAVAILABLE RIDERS\n";
-    line();
+    std::cout << "\n============================================================\n";
+    std::cout << "                     AVAILABLE RIDERS\n";
+    std::cout << "============================================================\n";
 
     bool found = false;
 
@@ -1061,8 +1063,9 @@ void assignDeliveryManually() {
     std::vector<int> pendingIndexes;
 
     // displays the pending delivery selection screen
-    std::cout << "\nSELECT A PENDING DELIVERY\n";
-    line();
+    std::cout << "\n============================================================\n";
+    std::cout << "               SELECT A PENDING DELIVERY\n";
+    std::cout << "============================================================\n";
 
     // checks each delivery for pending status
     for (int i = 0; i < deliveries.size(); i++) {
@@ -1205,8 +1208,9 @@ void assignDeliveryManually() {
 void autoAssignDeliveries() {
 
     // displays the automatic delivery assignment screen
-    std::cout << "\nAUTOMATIC DELIVERY ASSIGNMENT\n";
-    line();
+    std::cout << "\n============================================================\n";
+    std::cout << "             AUTOMATIC DELIVERY ASSIGNMENT\n";
+    std::cout << "============================================================\n";
 
     // counts the successfully assigned deliveries
     int assignedCount = 0;
