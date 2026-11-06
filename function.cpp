@@ -494,8 +494,9 @@ void addRider() {
     // clears the screen before displaying the add rider menu
     clearScreen();
 
-    std::cout << "ADD RIDER\n";
-    line();
+    std::cout << "\n============================================================\n";
+    std::cout << "                          ADD RIDER\n";
+    std::cout << "============================================================\n";
 
     // checks if the rider limit has been reached
     if (riderCount >= MAX_RIDERS) {
@@ -576,8 +577,9 @@ void viewRiders() {
     // clears the screen before displaying the rider list
     clearScreen();
 
-    std::cout << "VIEW RIDERS\n";
-    line();
+    std::cout << "\n============================================================\n";
+    std::cout << "                          VIEW RIDERS\n";
+    std::cout << "============================================================\n";
 
     // checks if there are no registered riders
     if (riderCount == 0) {
@@ -639,8 +641,9 @@ void updateRider() {
     int id;
     int found = -1;
 
-    std::cout << "UPDATE RIDER INFORMATION\n";
-    line();
+    std::cout << "\n============================================================\n";
+    std::cout << "                     UPDATE RIDER INFORMATION\n";
+    std::cout << "============================================================\n";
 
     // checks if there are no registered riders
     if (riderCount == 0) {
@@ -762,8 +765,9 @@ void manageRiderAvailability() {
     int id;
     int found = -1;
 
-    std::cout << "MANAGE RIDER AVAILABILITY\n";
-    line();
+    std::cout << "\n============================================================\n";
+    std::cout << "                  MANAGE RIDER AVAILABILITY\n";
+    std::cout << "============================================================\n";
 
     // checks if there are no registered riders
     if (riderCount == 0) {
