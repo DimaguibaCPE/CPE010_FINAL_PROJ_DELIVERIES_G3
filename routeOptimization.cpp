@@ -260,8 +260,9 @@ OptimizedRoute RouteOptimizer::optimize(
 void RouteOptimizer::displayLocations() const {
     
     // displays the location list heading
-    cout << "\nPREDEFINED DELIVERY BARANGAYS\n";
-    line();
+    std::cout << "\n============================================================\n";
+    std::cout << "           PREDEFINED DELIVERY BARANGAYS\n";
+    std::cout << "============================================================\n";
 
     // displays each location with its assigned index
     for (size_t i = 0; i < locations.size(); ++i) {
@@ -366,8 +367,9 @@ void showRouteOptimizationScreen() {
             clearScreen();
 
             // displays the optimized route heading
-            cout << "OPTIMIZED DELIVERY ROUTE\n";
-            line();
+            std::cout << "\n============================================================\n";
+            std::cout << "           OPTIMIzE DELIVERY ROUTE\n";
+            std::cout << "============================================================\n";
 
             // gets all delivery records
             const vector<Delivery>& deliveries =
