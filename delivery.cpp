@@ -1,10 +1,46 @@
 #include "delivery.h"
 #include <iostream>
+#include <algorithm>
 #include <random>
 #include <limits>
-#include <iomanip> 
+#include <iomanip>
+#include <chrono> 
 
 const std::string MAIN_WAREHOUSE = "Main Warehouse";
+
+namespace {
+    // partitions delivery records around the last record's delivery ID
+    int partitionDeliveries(std::vector<Delivery>& records, int low, int high) {
+        const std::string pivot = records[high].deliveryID;
+        int smallerIndex = low - 1;
+
+        for (int current = low; current < high; ++current) {
+            if (records[current].deliveryID <= pivot) {
+                ++smallerIndex;
+                std::swap(records[smallerIndex], records[current]);
+            }
+        }
+
+        std::swap(records[smallerIndex + 1], records[high]);
+        return smallerIndex + 1;
+    }
+
+    // recursively sorts delivery records in ascending delivery ID order
+    void quickSortDeliveries(std::vector<Delivery>& records, int low, int high) {
+        if (low < high) {
+            const int pivotIndex = partitionDeliveries(records, low, high);
+            quickSortDeliveries(records, low, pivotIndex - 1);
+            quickSortDeliveries(records, pivotIndex + 1, high);
+        }
+    }
+}
+
+// exposes the production Quick Sort implementation for the performance benchmark
+void quickSortDeliveryVector(std::vector<Delivery>& records) {
+    if (!records.empty()) {
+        quickSortDeliveries(records, 0, static_cast<int>(records.size()) - 1);
+    }
+}
 
 // returns the shared delivery manager instance
 DeliveryManager& getDeliveryManager() {
@@ -287,6 +323,19 @@ void DeliveryManager::searchDeliveryRecord() const {
 
     std::cout << "\nNo delivery record found with ID: "
               << searchID << "\n";
+}
+
+// sorts all delivery records by delivery ID using Quick Sort
+void DeliveryManager::quickSortDeliveryRecords() {
+    if (deliveries.empty()) {
+        std::cout << "\nNo delivery records available to sort.\n";
+        return;
+    }
+
+    quickSortDeliveryVector(deliveries);
+
+    std::cout << "\nDelivery records successfully sorted by Delivery ID (ascending).\n";
+    std::cout << "Sorting algorithm: Quick Sort\n";
 }
 
 // edits an existing pending delivery record

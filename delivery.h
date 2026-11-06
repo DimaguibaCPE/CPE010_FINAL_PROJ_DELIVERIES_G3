@@ -46,6 +46,9 @@ public:
     // searches for a delivery record using its ID
     void searchDeliveryRecord() const;
 
+    // sorts delivery records by delivery ID using Quick Sort
+    void quickSortDeliveryRecords();
+
     // edits an existing pending delivery record
     void editDeliveryRecord();
 
@@ -64,6 +67,9 @@ public:
     // assigns a pending delivery to a rider
     bool assignDelivery(const std::string& deliveryID, const std::string& riderName);
 };
+
+// sorts a delivery-record vector using the project Quick Sort implementation (also used by benchmarks)
+void quickSortDeliveryVector(std::vector<Delivery>& records);
 
 // provides access to the shared delivery manager
 DeliveryManager& getDeliveryManager();
