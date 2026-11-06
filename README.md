@@ -30,7 +30,7 @@
 - Allows users to mark a delivery as completed by returning the rider's status to available.
 
 
-**PROGRESS 3: RIDER MANAGEMENT – GRESOLA, GARBOSA**
+**PROGRESS 3: RIDER MANAGEMENT – GGARBOSA**
 
 - Implemented functionality to add new riders to the system.
 - Added functionality to view rider information using their assigned ID.
