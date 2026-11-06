@@ -1379,7 +1379,7 @@ void showDeliveryTrackingScreen() {
         printMenu();
 
         // gets the user's menu selection
-        int select = readMenuChoice(0, 5);
+        int select = readMenuChoice(0, 4);
 
         // stores the rider ID entered by the user
         std::string id;
@@ -1427,30 +1427,6 @@ void showDeliveryTrackingScreen() {
                 pauseScreen();
                 break;
 
-            case 5:
-                // starts a delivery using the entered rider ID
-                std::cout << "\nStart a Delivery:\n";
-                std::cout << "Enter ID number: ";
-                std::getline(std::cin, id);
-
-                // stores the delivery address and item
-                std::string address, item;
-
-                // gets the item assigned to the rider
-                std::cout << "Enter Item: ";
-                getline(std::cin, item);
-
-                // gets the destination address
-                std::cout << "Enter Address: ";
-                getline(std::cin, address);
-
-                // updates the rider's delivery information
-                deliverStart(fileName, id, address, item);
-
-                // reloads the updated rider information
-                loadRidersFromFile();
-                pauseScreen();
-                break;
         }
     }
 }
