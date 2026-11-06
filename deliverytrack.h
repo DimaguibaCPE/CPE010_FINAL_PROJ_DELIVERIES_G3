@@ -7,29 +7,28 @@
 #ifndef DELIVERYTRACK_H
 #define DELIVERYTRACK_H
 
-/*Algo/How it works:
-
-Tracker Updater:
+/*
+How the delivery tracker works:
 
 View functions:
-- View all riders (Regardless of status)
--View all Riders available(Status: Ready)
--View all Riders on delivery(Status: On Delivery)
-- Check specific rider status by ID
-
+- Displays all riders regardless of status
+- Displays riders with Ready status
+- Displays riders with On-Delivery status
+- Checks a specific rider's status using their ID
 
 Update functions:
--System updates files
--If rider assigned, change status(Status: On Delivery)
--If delivery finished, change status (Status: Ready)
-- Delivery completion tracking
-IN SHORT: It's basically linear search with extra steps lol
+- Updates rider information in the file
+- Changes rider status to On-Delivery when a delivery starts
+- Changes rider status to Ready when a delivery is completed
+- Tracks delivery completion
 
-NOTE: When calling Status or ID no need to add "#" or "Status:". Type as is ex.("0001", "Ready"). 
+The tracker uses linear search to find and update rider records.
+
+Note: Enter rider IDs and statuses without adding "#" or "Status:".
+Example: "0001", "Ready"
 */
 
-//Menu
-
+// displays the delivery tracker menu
 void printMenu(){
 
     std::cout<<"DELIVERY TRACKER\n";
@@ -52,19 +51,19 @@ void printMenu(){
     return;
 }
 
-//===================VIEW FUNCTIONS=================
+// =================== VIEW FUNCTIONS =================
 
-//readAll (Bound to change)
-void viewAll(std::string filelappelle){ //l'apple("to call") >:D
+// displays all rider records from the file
+void viewAll(std::string filelappelle){
     
     std::ifstream file(filelappelle);
 
     if(!file.is_open()){
-        std::cout<<"Failed to open file!"<<std::endl;
+        std::cout << "Error: Failed to open file.\n";
         return;
     }
 
-    //read each line
+    // reads each line from the file
     std::string toView;
     bool found = false;
     while(std::getline(file, toView)){
@@ -74,13 +73,14 @@ void viewAll(std::string filelappelle){ //l'apple("to call") >:D
         }
     }
 
+    // displays a message if no rider records are found
     if (!found) {
         std::cout << "No drivers found." << std::endl;
     }
     file.close();
 }
 
-//read those with status "Ready" (Bound to change)
+// displays riders with Ready status
 void viewReady(std::string filelappelle){
     std::ifstream file(filelappelle);
 
@@ -89,7 +89,7 @@ void viewReady(std::string filelappelle){
         return;
     }
 
-    //read only those with "Ready" status:
+    // filters records with Ready status
     std::string readyLine;
     std::string readTill = ", Status:";
     std::string status = "Status: Ready";
@@ -97,12 +97,14 @@ void viewReady(std::string filelappelle){
     bool found = false;
     
     while(std::getline(file, readyLine)){
-        if(readyLine.find(status) != std::string::npos){ //
+        if(readyLine.find(status) != std::string::npos){
+            // displays the rider information before the status field
             std::cout << readyLine.substr(0, readyLine.find(readTill)) << std::endl;
             found = true;
             }
         }       
 
+    // displays a message if no riders are on standby
     if (!found) {
         std::cout << "No drivers on standby." << std::endl;
     }
@@ -110,6 +112,7 @@ void viewReady(std::string filelappelle){
     file.close();
 }
 
+// displays riders with On-Delivery status
 void viewOnDelivery(std::string filelappelle){ 
     std::ifstream file(filelappelle);
 
@@ -118,21 +121,23 @@ void viewOnDelivery(std::string filelappelle){
         return;
     }
 
-    //read only those with "On-Delivery" status:
+    // filters records with On-Delivery status
     std::string onDel;
     std::string readTill = ", Status:";
     std::string readFrom = "Item: ";
-    std::string status = "Status: On-Delivery"; //reads only till ID
+    std::string status = "Status: On-Delivery";
 
     bool found = false;
 
     while(std::getline(file, onDel)){    
         if (onDel.find(status) != std::string::npos) {
 
+            // displays rider information before the status field
             std::cout << onDel.substr(
                 0, onDel.find(readTill)
             ) << " ";
 
+            // displays the item information
             std::cout << onDel.substr(
                 onDel.find(readFrom), std::string::npos
             ) << std::endl;
@@ -141,6 +146,7 @@ void viewOnDelivery(std::string filelappelle){
             }
         }   
                 
+    // displays a message if no riders are on delivery
     if (!found) {
         std::cout << "No drivers currently on delivery." << std::endl;
     }
@@ -148,11 +154,11 @@ void viewOnDelivery(std::string filelappelle){
     file.close();
 }
 
-//=================END OF VIEW FUNCTIONS==========
+// ================= END OF VIEW FUNCTIONS ==========
 
-//=====================UPDATE FUNCTIONS=========================
+// ===================== UPDATE FUNCTIONS =========================
 
-//update helper function
+// updates a rider's status, item, and address in the file
 void updateStats(std::string filelappelle, std::string id, std::string stat, std::string address, std::string item){
     std::ifstream reader(filelappelle);
 
@@ -161,63 +167,73 @@ void updateStats(std::string filelappelle, std::string id, std::string stat, std
         return;
     }
     
-    std::vector<std::string> heldLines; //Scales automatically much dynamic than using new file
+    // stores the file contents before rewriting
+    std::vector<std::string> heldLines;
     std::string holdLine;
     std::string search = "ID: #" + id + ",";
     bool foundIt = false;
 
     while(std::getline(reader, holdLine)){
-        //ID search
+        
+        // searches for the rider ID
         if(holdLine.find(search) != std::string::npos){
             std::size_t posStat = holdLine.find("Status:");
             std::size_t posItem = holdLine.find("Item: ");
             std::size_t posAdd = holdLine.find("Address: ");
-            //checks if there are missing variables
+
+            // checks if all required fields exist
             if(posStat != std::string::npos && posItem != std::string::npos && posAdd != std::string::npos){
                 holdLine.replace(posStat, posItem - posStat - 2, "Status: " + stat);
-                //resets the positions, because they keep doing weird things
+
+                // updates field positions after replacing the status
                 posItem = holdLine.find("Item: ");
                 posAdd = holdLine.find("Address: ");
 
                 holdLine.replace(posItem, posAdd - posItem - 2, "Item: " + item);
                 posAdd = holdLine.find("Address: ");
 
+                // updates the address field
                 holdLine.replace(posAdd, std::string::npos, "Address: " + address);
-                foundIt = true; // if found
+                foundIt = true;
             }
         }
+
+        // stores the current line for rewriting
         heldLines.push_back(holdLine);
     }
 
-     reader.close(); //close it to switch into write mode.
+    reader.close();
 
+    // stops the update if the rider ID is not found
     if(!foundIt){
-        std::cout<<"Rider not found or Missing!"<<std::endl;
+        std::cout << "Error: Rider not found.\n";
         return;
     }
    
-    //Rewrite part
-
-    //open in write mode this time
+    // rewrites the updated file contents
     std::ofstream writer(filelappelle);
+
     if(!writer.is_open()){
         std::cout<< "Error for Writing Step"<<std::endl;
         return;
     }
 
-    for(const std::string& update : heldLines){ //called a range based for loop iterates all lines vector to write
+    // writes each stored line back to the file
+    for(const std::string& update : heldLines){
         writer<< update << '\n';
     }
 
     writer.close();
 
-    std::cout<<"Rider "<<id<< " Status updated."<<std::endl;
+    // confirms that the rider information was updated
+    std::cout << "Rider " << id << " status successfully updated.\n";
 
 }
 
+// updates a rider's status when a delivery starts
 void deliverStart(std::string filelappelle, std::string id, std::string address, std::string item){
 
-    //checks if rider status is status : ready
+    // checks if the rider has Ready status
     std::ifstream reader(filelappelle);
 
     if(!reader.is_open()){
@@ -230,32 +246,39 @@ void deliverStart(std::string filelappelle, std::string id, std::string address,
     bool foundIt = false;
 
     while(std::getline(reader, line)){
-        //ID search
+        
+        // searches for the rider ID
         if(line.find(search) != std::string::npos){
             foundIt = true;
+
+            // updates the rider if their status is Ready
             if(line.find("Status: Ready") != std::string::npos){
                 reader.close(); 
                 updateStats(filelappelle, id, "On-Delivery", address, item);
             }
             else{
-                std::cout<<"Rider already on delivery!"<<std::endl;
+                
+                // prevents starting another delivery for an unavailable rider
+                std::cout << "Error: Rider is already on delivery.\n";
                 reader.close();
             }
             return;   
         }
     }   
 
-     reader.close(); 
+    reader.close(); 
 
+    // displays an error if the rider ID is not found
     if(!foundIt){
         std::cout<<"Rider not found or Missing!"<<std::endl;
         return;
     }
 }
 
-void deliverComplete(std::string filelappelle, std::string id){ //no need for other parameters since set to "None"
+// updates a rider's status when a delivery is completed
+void deliverComplete(std::string filelappelle, std::string id){
 
-    //checks if rider status is status : on-delivery
+    // checks if the rider has On-Delivery status
     std::ifstream reader(filelappelle);
 
     if(!reader.is_open()){
@@ -268,15 +291,20 @@ void deliverComplete(std::string filelappelle, std::string id){ //no need for ot
     bool foundIt = false;
 
     while(std::getline(reader, line)){
-        //ID search
+        
+        // searches for the rider ID
         if(line.find(search) != std::string::npos){
             foundIt = true;
+
+            // resets the rider's status if they are on delivery
             if(line.find("Status: On-Delivery") != std::string::npos){
                 reader.close(); 
                 updateStats(filelappelle, id, "Ready", "None", "None");
                 return; 
             }
             else{
+                
+                // prevents completion if the rider is not on delivery
                 std::cout<<"Rider is not doing a delivery!"<<std::endl;
                 reader.close();
                 return; 
@@ -284,8 +312,10 @@ void deliverComplete(std::string filelappelle, std::string id){ //no need for ot
             
         }
     }   
-     reader.close(); 
 
+    reader.close(); 
+
+    // displays an error if the rider ID is not found
     if(!foundIt){
         std::cout<<"Rider not found or Missing!"<<std::endl;
         return;
